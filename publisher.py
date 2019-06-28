@@ -1,7 +1,8 @@
-import time
 import zmq
-import random
+import threading
+import processos as proc
 
+# definição das ações disponíveis e valores iniciais
 acoes = {"PETR4": {"nome": "PETR4", "valor": 10}, "VALE3": {"nome": "VALE3", "valor": 10},
          "ITUB4": {"nome": "ITUB4", "valor": 10}, "B3SA3": {"nome": "B3SA3", "valor": 10},
          "BBAS3": {"nome": "BBAS3", "valor": 10}, "BBDC4": {"nome": "BBDC4", "valor": 10},
@@ -13,30 +14,59 @@ acoes = {"PETR4": {"nome": "PETR4", "valor": 10}, "VALE3": {"nome": "VALE3", "va
          "SUZB3": {"nome": "SUZB3", "valor": 10}, "UGPA3": {"nome": "UFPA3", "valor": 10},
          "GOLL4": {"nome": "GOLL4", "valor": 10}, "SMLS3": {"nome": "SMLS3", "valor": 10}}
 
-def variacao(acao):
-    acao["valor"] += random.uniform(-5,5)
 
 def main():
-    """main method"""
-
-    # Prepare our context and publisher
+    # prepara o contexto e o publicador
     context   = zmq.Context()
     publisher = context.socket(zmq.PUB)
     publisher.bind("tcp://*:5563")
 
-    while True:
-        # Write two messages, each with an envelope and content
-        for acao in acoes:
-            acoes[acao]["valor"] += random.uniform(-10, 10)
-            if(acoes[acao]["valor"] < 0):
-                acoes[acao]["valor"] = 10
-            valor = bytes(str(round(acoes[acao]["valor"], 2)),'utf-8')
-            publisher.send_multipart([bytes(acao, 'utf-8'), valor])
-        time.sleep(1)
+    # cria um objeto para travar a exeucação dos processos quando for fazer uma publicação
+    lock = threading.Lock()
 
-    # We never get here but clean up anyhow
-    publisher.close()
-    context.term()
+    # cria os processos paralelos
+    petr4 = threading.Thread(target=proc.petr4, args=(acoes, publisher, lock))
+    vale3 = threading.Thread(target=proc.vale3, args=(acoes, publisher, lock))
+    itub4 = threading.Thread(target=proc.itub4, args=(acoes, publisher, lock))
+    b3sa3 = threading.Thread(target=proc.b3sa3, args=(acoes, publisher, lock))
+    abev3 = threading.Thread(target=proc.abev3, args=(acoes, publisher, lock))
+    bbdc4 = threading.Thread(target=proc.bbdc4, args=(acoes, publisher, lock))
+    petr3 = threading.Thread(target=proc.petr3, args=(acoes, publisher, lock))
+    lren3 = threading.Thread(target=proc.lren3, args=(acoes, publisher, lock))
+    itsa3 = threading.Thread(target=proc.itsa3, args=(acoes, publisher, lock))
+    jbss3 = threading.Thread(target=proc.jbss3, args=(acoes, publisher, lock))
+    rail3 = threading.Thread(target=proc.rail3, args=(acoes, publisher, lock))
+    mglu3 = threading.Thread(target=proc.mglu3, args=(acoes, publisher, lock))
+    krot3 = threading.Thread(target=proc.krot3, args=(acoes, publisher, lock))
+    natu3 = threading.Thread(target=proc.natu3, args=(acoes, publisher, lock))
+    ciel3 = threading.Thread(target=proc.ciel3, args=(acoes, publisher, lock))
+    suzb3 = threading.Thread(target=proc.suzb3, args=(acoes, publisher, lock))
+    ugpa3 = threading.Thread(target=proc.ugpa3, args=(acoes, publisher, lock))
+    goll4 = threading.Thread(target=proc.goll4, args=(acoes, publisher, lock))
+    smls3 = threading.Thread(target=proc.smls3, args=(acoes, publisher, lock))
+
+
+    vale3.start()
+    petr4.start()
+    itub4.start()
+    b3sa3.start()
+    bbdc4.start()
+    abev3.start()
+    petr3.start()
+    lren3.start()
+    itsa3.start()
+    jbss3.start()
+    rail3.start()
+    mglu3.start()
+    krot3.start()
+    natu3.start()
+    ciel3.start()
+    suzb3.start()
+    ugpa3.start()
+    goll4.start()
+    smls3.start()
+
+
 
 if __name__ == "__main__":
     main()

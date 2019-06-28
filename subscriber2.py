@@ -1,20 +1,25 @@
 import zmq
+import time
+import datetime
 
 def main():
-    """ main method """
 
-    # Prepare our context and publisher
+    # prepara o contexto e o assinante
     context    = zmq.Context()
     subscriber = context.socket(zmq.SUB)
     subscriber.connect("tcp://localhost:5563")
+    # assina uma ação
     subscriber.setsockopt(zmq.SUBSCRIBE, b'PETR4')
 
     while True:
-        # Read envelope with address
-        acao, valor = subscriber.recv_multipart()
-        print("%s Valor: R$ %s" % (acao.decode('utf-8'), valor.decode('utf-8')))
+        hora = datetime.datetime.now()
+        try:
+            acao, valor = subscriber.recv_multipart()
+            print("%s Valor: R$ %s às %d:%d:%d" % (acao.decode('utf-8'), valor.decode('utf-8'), hora.hour, hora.minute, hora.second))
+            time.sleep(0.1)
+        except:
+           time.sleep(5)
 
-    # We never get here but clean up anyhow
     subscriber.close()
     context.term()
 
